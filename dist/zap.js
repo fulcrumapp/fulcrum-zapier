@@ -11,6 +11,8 @@ Utils = (function() {
 
   Utils.prototype.TEST = process && process.env && process.env.test === 'test';
 
+  Utils.prototype.API = 'https://api.fulcrumapp.com/api/v2';
+
   Utils.prototype.flattenElements = function(elements) {
     return _.tap([], (function(_this) {
       return function(flat) {
@@ -50,9 +52,6 @@ Utils = (function() {
       data = response.body;
     } else {
       response = z.request(params);
-      console.log("Status: " + response.status_code);
-      console.log("Headers: " + JSON.stringify(response.headers));
-      console.log("Content/Body: " + response.content);
       data = response.content;
     }
     return JSON.parse(data);
@@ -80,7 +79,7 @@ Utils = (function() {
 
   Utils.prototype.fetchResource = function(resourceName, id, token) {
     var url;
-    url = "https://api.fulcrumapp.com/api/v2/" + resourceName + "/" + id + ".json";
+    url = "" + this.API + "/" + resourceName + "/" + id + ".json";
     return this.request(url, token);
   };
 
@@ -94,7 +93,7 @@ Utils = (function() {
 
   Utils.prototype.fetchRecordHistoryVersion = function(recordID, version, token) {
     var url;
-    url = "https://api.fulcrumapp.com/api/v2/records/history.json?record_id=" + recordID + "&version=" + version;
+    url = "" + this.API + "/records/history.json?record_id=" + recordID + "&version=" + version;
     return _.find(this.request(url, token).records, function(record) {
       return record.version === version;
     });
@@ -105,7 +104,7 @@ Utils = (function() {
     if (this.memberships) {
       return this.memberships;
     }
-    url = "https://api.fulcrumapp.com/api/v2/memberships.json?skip_associations=true";
+    url = "" + this.API + "/memberships.json?skip_associations=true";
     return this.memberships = this.request(url, token).memberships;
   };
 
@@ -114,7 +113,7 @@ Utils = (function() {
     if (this.choiceLists) {
       return this.choiceLists;
     }
-    url = "https://api.fulcrumapp.com/api/v2/choice_lists.json";
+    url = "" + this.API + "/choice_lists.json";
     this.choiceLists = this.request(url, token).choice_lists;
     this.choiceListsMap = {};
     _.each(this.choiceLists, (function(_this) {
@@ -160,13 +159,13 @@ Utils = (function() {
     if (value.other_values) {
       this.pushArray(labels, value.other_values);
     }
-    return _.compact(labels).join(", ");
+    return _.compact(labels).join(', ');
   };
 
   Utils.prototype.makeValues = function(element, value) {
     var serializer;
     if (_.isNull(value) || _.isUndefined(value)) {
-      return this.makeValue([element.data_name], [""]);
+      return this.makeValue([element.data_name], ['']);
     }
     serializer = this["serialize_" + element.type];
     if (serializer) {
@@ -187,17 +186,15 @@ Utils = (function() {
   Utils.prototype.makeRecords = function(form, elements, records) {
     return _.map(records, (function(_this) {
       return function(record) {
-        var output;
-        output = {
+        return _this.makeRecord(form, elements, record, {
           event_type: 'Create'
-        };
-        return _this.makeRecord(form, elements, record, output);
+        });
       };
     })(this));
   };
 
   Utils.prototype.makeRecord = function(form, elements, data, output) {
-    output = output || {};
+    output || (output = {});
     output.id = data.id;
     output.status = data.status;
     output.created_at = data.created_at;
@@ -261,9 +258,9 @@ Utils = (function() {
     captions = [];
     _.each(value, function(photo) {
       photos.push(photo.photo_id);
-      captions.push(photo.caption || "");
+      return captions.push(photo.caption || '');
     });
-    keys = [element.data_name + " IDs", element.data_name + " Captions", element.data_name + " URL"];
+    keys = [element.data_name + '_id', element.data_name + '_captions', element.data_name + '_url'];
     url = "https://web.fulcrumapp.com/photos/view?photos=" + photos.join(",");
     values = [photos.join(", "), _.compact(captions).join(", "), url];
     return this.makeValue(keys, values);
@@ -277,7 +274,7 @@ Utils = (function() {
       videos.push(video.video_id);
       return captions.push(video.caption || '');
     });
-    keys = [element.data_name + " IDs", element.data_name + " Captions", element.data_name + " URL"];
+    keys = [element.data_name + '_id', element.data_name + '_captions', element.data_name + '_url'];
     url = "https://web.fulcrumapp.com/videos/view?videos=" + videos.join(",");
     values = [videos.join(", "), _.compact(captions).join(", "), url];
     return this.makeValue(keys, values);
@@ -296,11 +293,11 @@ Utils = (function() {
     if (value.other_values) {
       this.pushArray(choices, value.other_values);
     }
-    return this.makeValue([element.data_name], [_.compact(choices).join(", ")]);
+    return this.makeValue([element.data_name], [_.compact(choices).join(', ')]);
   };
 
   Utils.prototype.serialize_Default = function(element, value) {
-    value = (value ? value.toString() : "");
+    value = value ? value.toString() : '';
     return this.makeValue([element.data_name], [value]);
   };
 
@@ -881,8 +878,8 @@ module.exports = RecordAssigned = (function(_super) {
     return RecordAssigned.__super__.constructor.apply(this, arguments);
   }
 
-  RecordAssigned.prototype.isValid = function() {
-    return RecordAssigned.__super__.isValid.call(this) && this.isntDeleted() && this.currentAssignment() && this.currentAssignment() !== this.previousAssignment();
+  RecordAssigned.prototype.shouldProcess = function() {
+    return RecordAssigned.__super__.shouldProcess.call(this) && this.isntDeleted() && this.currentAssignment() && (this.currentAssignment() !== this.previousAssignment());
   };
 
   RecordAssigned.prototype.isntDeleted = function() {
@@ -894,12 +891,10 @@ module.exports = RecordAssigned = (function(_super) {
   };
 
   RecordAssigned.prototype.previousAssignment = function() {
-    var previous;
     if (this.data.version === 1) {
       return null;
     }
-    previous = utils.fetchPreviousRecordVersion(this.data, this.token);
-    return previous.assigned_to_id;
+    return utils.fetchPreviousRecordVersion(this.data, this.token).assigned_to_id;
   };
 
   RecordAssigned.prototype.result = function() {
@@ -953,8 +948,8 @@ module.exports = RecordCreated = (function(_super) {
     return RecordCreated.__super__.constructor.apply(this, arguments);
   }
 
-  RecordCreated.prototype.isValid = function() {
-    return RecordCreated.__super__.isValid.call(this) && this.type === 'record.create';
+  RecordCreated.prototype.shouldProcess = function() {
+    return RecordCreated.__super__.shouldProcess.call(this) && this.type === 'record.create';
   };
 
   return RecordCreated;
@@ -979,8 +974,8 @@ module.exports = RecordDeleted = (function(_super) {
     return RecordDeleted.__super__.constructor.apply(this, arguments);
   }
 
-  RecordDeleted.prototype.isValid = function() {
-    return RecordDeleted.__super__.isValid.call(this) && this.type === 'record.delete';
+  RecordDeleted.prototype.shouldProcess = function() {
+    return RecordDeleted.__super__.shouldProcess.call(this) && this.type === 'record.delete';
   };
 
   return RecordDeleted;
@@ -1005,8 +1000,8 @@ module.exports = RecordProjectChanged = (function(_super) {
     return RecordProjectChanged.__super__.constructor.apply(this, arguments);
   }
 
-  RecordProjectChanged.prototype.isValid = function() {
-    return RecordProjectChanged.__super__.isValid.call(this) && this.isntDeleted() && this.currentProject() !== this.previousProject();
+  RecordProjectChanged.prototype.shouldProcess = function() {
+    return RecordProjectChanged.__super__.shouldProcess.call(this) && this.isntDeleted() && this.currentProject() !== this.previousProject();
   };
 
   RecordProjectChanged.prototype.isntDeleted = function() {
@@ -1018,12 +1013,10 @@ module.exports = RecordProjectChanged = (function(_super) {
   };
 
   RecordProjectChanged.prototype.previousProject = function() {
-    var previous;
     if (this.data.version === 1) {
       return null;
     }
-    previous = utils.fetchPreviousRecordVersion(this.data, this.token);
-    return previous.project_id;
+    return utils.fetchPreviousRecordVersion(this.data, this.token).project_id;
   };
 
   return RecordProjectChanged;
@@ -1048,8 +1041,8 @@ module.exports = RecordStatusChanged = (function(_super) {
     return RecordStatusChanged.__super__.constructor.apply(this, arguments);
   }
 
-  RecordStatusChanged.prototype.isValid = function() {
-    return RecordStatusChanged.__super__.isValid.call(this) && this.isntDeleted() && this.currentStatus() !== this.previousStatus();
+  RecordStatusChanged.prototype.shouldProcess = function() {
+    return RecordStatusChanged.__super__.shouldProcess.call(this) && this.isntDeleted() && this.currentStatus() !== this.previousStatus();
   };
 
   RecordStatusChanged.prototype.isntDeleted = function() {
@@ -1061,12 +1054,10 @@ module.exports = RecordStatusChanged = (function(_super) {
   };
 
   RecordStatusChanged.prototype.previousStatus = function() {
-    var previous;
     if (this.data.version === 1) {
       return null;
     }
-    previous = utils.fetchPreviousRecordVersion(this.data, this.token);
-    return previous.status;
+    return utils.fetchPreviousRecordVersion(this.data, this.token).status;
   };
 
   return RecordStatusChanged;
@@ -1091,7 +1082,7 @@ module.exports = RecordTrigger = (function(_super) {
     return RecordTrigger.__super__.constructor.apply(this, arguments);
   }
 
-  RecordTrigger.prototype.isValid = function() {
+  RecordTrigger.prototype.shouldProcess = function() {
     return this.data.form_id === this.trigger_fields.form;
   };
 
@@ -1148,8 +1139,8 @@ module.exports = RecordUpdated = (function(_super) {
     return RecordUpdated.__super__.constructor.apply(this, arguments);
   }
 
-  RecordUpdated.prototype.isValid = function() {
-    return RecordUpdated.__super__.isValid.call(this) && this.type === 'record.update';
+  RecordUpdated.prototype.shouldProcess = function() {
+    return RecordUpdated.__super__.shouldProcess.call(this) && this.type === 'record.update';
   };
 
   return RecordUpdated;
@@ -1166,7 +1157,7 @@ module.exports = Trigger = (function() {
 
   Trigger.prototype.skip = [];
 
-  Trigger.prototype.isValid = function() {
+  Trigger.prototype.shouldProcess = function() {
     return true;
   };
 
@@ -1177,7 +1168,7 @@ module.exports = Trigger = (function() {
     this.json = JSON.parse(this.bundle.request.content);
     this.data = this.json.data;
     this.type = this.json.type;
-    if (!this.isValid()) {
+    if (!this.shouldProcess()) {
       return this.skip;
     }
     this.setup();

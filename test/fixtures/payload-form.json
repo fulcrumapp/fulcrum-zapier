@@ -1,0 +1,198 @@
+{
+    "form": {
+        "auto_assign": false,
+        "bounding_box": [
+            27.8222034126779,
+            -82.6911699493254,
+            27.8223566757774,
+            -82.6910095196987
+        ],
+        "created_at": "2015-01-04T23:49:29Z",
+        "description": "Lottery Scratch-Offs",
+        "elements": [
+            {
+                "allow_other": true,
+                "choices": [
+                    {
+                        "label": "$10,000 Jackpot",
+                        "value": "1237"
+                    },
+                    {
+                        "label": "Big Money Crossword",
+                        "value": "1257"
+                    },
+                    {
+                        "label": "Holiday Cash",
+                        "value": "1250"
+                    },
+                    {
+                        "label": "Monopoly",
+                        "value": "1196"
+                    }
+                ],
+                "data_name": "game",
+                "default_value": null,
+                "description": null,
+                "disabled": false,
+                "hidden": false,
+                "key": "06ab",
+                "label": "Game",
+                "multiple": false,
+                "required": true,
+                "required_conditions": null,
+                "required_conditions_type": null,
+                "type": "ChoiceField",
+                "visible_conditions": null,
+                "visible_conditions_type": null
+            },
+            {
+                "data_name": "cost",
+                "default_value": null,
+                "description": null,
+                "disabled": false,
+                "format": "decimal",
+                "hidden": false,
+                "key": "2ee8",
+                "label": "Cost",
+                "max": null,
+                "max_length": null,
+                "min": null,
+                "min_length": null,
+                "numeric": true,
+                "required": true,
+                "required_conditions": null,
+                "required_conditions_type": null,
+                "type": "TextField",
+                "visible_conditions": null,
+                "visible_conditions_type": null
+            },
+            {
+                "data_name": "winnings",
+                "default_value": "0",
+                "description": null,
+                "disabled": false,
+                "format": "decimal",
+                "hidden": false,
+                "key": "578d",
+                "label": "Winnings",
+                "max": null,
+                "max_length": null,
+                "min": null,
+                "min_length": null,
+                "numeric": true,
+                "required": true,
+                "required_conditions": null,
+                "required_conditions_type": null,
+                "type": "TextField",
+                "visible_conditions": null,
+                "visible_conditions_type": null
+            },
+            {
+                "data_name": "barcode",
+                "default_value": null,
+                "description": null,
+                "disabled": false,
+                "hidden": false,
+                "key": "aa3f",
+                "label": "Barcode",
+                "required": false,
+                "required_conditions": null,
+                "required_conditions_type": null,
+                "type": "BarcodeField",
+                "visible_conditions": null,
+                "visible_conditions_type": null
+            },
+            {
+                "auto_populate": true,
+                "data_name": "address",
+                "default_value": null,
+                "description": null,
+                "disabled": false,
+                "hidden": true,
+                "key": "7d32",
+                "label": "Address",
+                "required": false,
+                "required_conditions": null,
+                "required_conditions_type": null,
+                "type": "AddressField",
+                "visible_conditions": null,
+                "visible_conditions_type": null
+            },
+            {
+                "data_name": "photos",
+                "default_value": null,
+                "description": null,
+                "disabled": false,
+                "hidden": false,
+                "key": "85d5",
+                "label": "Photos",
+                "max_length": null,
+                "min_length": null,
+                "required": false,
+                "required_conditions": null,
+                "required_conditions_type": null,
+                "type": "PhotoField",
+                "visible_conditions": null,
+                "visible_conditions_type": null
+            },
+            {
+                "audio_enabled": false,
+                "data_name": "videos",
+                "default_value": null,
+                "description": null,
+                "disabled": false,
+                "hidden": false,
+                "key": "b2c6",
+                "label": "Videos",
+                "max_length": null,
+                "min_length": null,
+                "required": false,
+                "required_conditions": null,
+                "required_conditions_type": null,
+                "track_enabled": true,
+                "type": "VideoField",
+                "visible_conditions": null,
+                "visible_conditions_type": null
+            }
+        ],
+        "id": "e5602f5a-9045-4621-b438-164d48c5dc0e",
+        "image": "https://fulcrumapp.s3.amazonaws.com/form-images/e5602f5a-9045-4621-b438-164d48c5dc0e-91718b1a-a2bd-4a52-a948-a437e5d93722.png",
+        "image_large": "https://fulcrumapp.s3.amazonaws.com/form-images/large_e5602f5a-9045-4621-b438-164d48c5dc0e-91718b1a-a2bd-4a52-a948-a437e5d93722.png",
+        "image_small": "https://fulcrumapp.s3.amazonaws.com/form-images/small_e5602f5a-9045-4621-b438-164d48c5dc0e-91718b1a-a2bd-4a52-a948-a437e5d93722.png",
+        "image_thumbnail": "https://fulcrumapp.s3.amazonaws.com/form-images/thumb_e5602f5a-9045-4621-b438-164d48c5dc0e-91718b1a-a2bd-4a52-a948-a437e5d93722.png",
+        "name": "Lottery Scratch-Offs",
+        "record_count": 82,
+        "record_title_key": "06ab",
+        "status_field": {
+            "choices": [
+                {
+                    "color": "#87D30F",
+                    "label": "Winner",
+                    "value": "Winner"
+                },
+                {
+                    "color": "#CB0D0C",
+                    "label": "Loser",
+                    "value": "Loser"
+                }
+            ],
+            "data_name": "status",
+            "default_value": "Loser",
+            "description": "",
+            "disabled": false,
+            "enabled": true,
+            "hidden": false,
+            "key": "@status",
+            "label": "Status",
+            "read_only": false,
+            "required": false,
+            "type": "StatusField"
+        },
+        "title_field_keys": [
+            "06ab",
+            "2ee8",
+            "578d"
+        ],
+        "updated_at": "2015-01-05T00:11:49Z"
+    }
+}

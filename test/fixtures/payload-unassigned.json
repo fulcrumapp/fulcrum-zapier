@@ -1,14 +1,14 @@
 {
     "data": {
         "altitude": 12.9476096290562,
-        "assigned_to": "Zac McCormick",
-        "assigned_to_id": "4f7e6dd114414027bd000032",
+        "assigned_to": null,
+        "assigned_to_id": null,
         "client_created_at": "2015-01-04T23:56:13Z",
         "client_updated_at": "2015-01-07T23:58:15Z",
         "course": 288.984375,
         "created_at": "2015-01-07T02:27:32Z",
-        "created_by": "Zac McCormick",
-        "created_by_id": "4f7e6dd114414027bd000032",
+        "created_by": "User 1",
+        "created_by_id": "9d784c14-aec7-426d-bf7e-6074d23c4ba1",
         "form_id": "e5602f5a-9045-4621-b438-164d48c5dc0e",
         "form_values": {
             "06ab": {
@@ -50,8 +50,8 @@
         "speed": 0.0,
         "status": "Loser",
         "updated_at": "2015-01-07T23:58:15Z",
-        "updated_by": "Zac McCormick",
-        "updated_by_id": "4f7e6dd114414027bd000032",
+        "updated_by": "User 1",
+        "updated_by_id": "9d784c14-aec7-426d-bf7e-6074d23c4ba1",
         "version": 3,
         "vertical_accuracy": 4.0
     },
