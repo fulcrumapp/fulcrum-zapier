@@ -3,6 +3,17 @@ utils = require './lib/utils'
 
 scope = (new Function('return this')())
 
+processPostPollBundle = (bundle) ->
+  results = JSON.parse(bundle.response.content).records
+
+  return [] if results.length < 1
+
+  form = utils.fetchForm(results[0].form_id, bundle.auth_fields.api_key)
+
+  elements = utils.flattenElements(form.elements)
+
+  utils.makeRecords(form, elements, results)
+
 scope.Zap =
   record_changed_catch_hook: (bundle) ->
     return triggers.process('RecordChanged', bundle)
@@ -25,18 +36,21 @@ scope.Zap =
   record_status_changed_catch_hook: (bundle) ->
     return triggers.process('RecordStatusChanged', bundle)
 
-  new_record_post_poll: (bundle) ->
-    results = JSON.parse(bundle.response.content).records
+  record_changed_post_poll: processPostPollBundle
 
-    return [] if results.length < 1
+  record_created_post_poll: processPostPollBundle
 
-    form = utils.fetchForm(results[0].form_id, bundle.auth_fields.api_key)
+  record_updated_post_poll: processPostPollBundle
 
-    elements = utils.flattenElements(form.elements)
+  record_deleted_post_poll: processPostPollBundle
 
-    utils.makeRecords(form, elements, results)
+  record_assigned_post_poll: processPostPollBundle
 
-  new_form_post_poll: (bundle) ->
+  record_project_changed_post_poll: processPostPollBundle
+
+  record_status_changed_post_poll: processPostPollBundle
+
+  app_post_poll: (bundle) ->
     JSON.parse(bundle.response.content).forms
 
 module.exports = scope.Zap

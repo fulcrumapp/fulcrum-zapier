@@ -22,7 +22,7 @@ bundle =
   response:
     content: JSON.stringify(records: [payload.data])
   trigger_fields:
-    form: formID
+    app: formID
   auth_fields:
     api_key: token
 

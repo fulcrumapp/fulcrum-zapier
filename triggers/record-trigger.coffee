@@ -3,7 +3,7 @@ Trigger = require './trigger'
 
 module.exports = class RecordTrigger extends Trigger
   shouldProcess: ->
-    @data.form_id is @trigger_fields.form
+    @data.form_id is @trigger_fields.app
 
   setup: ->
 

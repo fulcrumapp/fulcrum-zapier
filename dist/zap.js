@@ -1083,7 +1083,7 @@ module.exports = RecordTrigger = (function(_super) {
   }
 
   RecordTrigger.prototype.shouldProcess = function() {
-    return this.data.form_id === this.trigger_fields.form;
+    return this.data.form_id === this.trigger_fields.app;
   };
 
   RecordTrigger.prototype.setup = function() {};
@@ -1184,13 +1184,24 @@ module.exports = Trigger = (function() {
 
 
 },{}],20:[function(require,module,exports){
-var scope, triggers, utils;
+var processPostPollBundle, scope, triggers, utils;
 
 triggers = require('./triggers');
 
 utils = require('./lib/utils');
 
 scope = new Function('return this')();
+
+processPostPollBundle = function(bundle) {
+  var elements, form, results;
+  results = JSON.parse(bundle.response.content).records;
+  if (results.length < 1) {
+    return [];
+  }
+  form = utils.fetchForm(results[0].form_id, bundle.auth_fields.api_key);
+  elements = utils.flattenElements(form.elements);
+  return utils.makeRecords(form, elements, results);
+};
 
 scope.Zap = {
   record_changed_catch_hook: function(bundle) {
@@ -1214,17 +1225,14 @@ scope.Zap = {
   record_status_changed_catch_hook: function(bundle) {
     return triggers.process('RecordStatusChanged', bundle);
   },
-  new_record_post_poll: function(bundle) {
-    var elements, form, results;
-    results = JSON.parse(bundle.response.content).records;
-    if (results.length < 1) {
-      return [];
-    }
-    form = utils.fetchForm(results[0].form_id, bundle.auth_fields.api_key);
-    elements = utils.flattenElements(form.elements);
-    return utils.makeRecords(form, elements, results);
-  },
-  new_form_post_poll: function(bundle) {
+  record_changed_post_poll: processPostPollBundle,
+  record_created_post_poll: processPostPollBundle,
+  record_updated_post_poll: processPostPollBundle,
+  record_deleted_post_poll: processPostPollBundle,
+  record_assigned_post_poll: processPostPollBundle,
+  record_project_changed_post_poll: processPostPollBundle,
+  record_status_changed_post_poll: processPostPollBundle,
+  app_post_poll: function(bundle) {
     return JSON.parse(bundle.response.content).forms;
   }
 };
