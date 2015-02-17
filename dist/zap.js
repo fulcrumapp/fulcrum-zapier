@@ -196,6 +196,7 @@ Utils = (function() {
   Utils.prototype.makeRecord = function(form, elements, data, output) {
     output || (output = {});
     output.id = data.id;
+    output.form_id = data.form_id;
     output.status = data.status;
     output.created_at = data.created_at;
     output.updated_at = data.updated_at;
