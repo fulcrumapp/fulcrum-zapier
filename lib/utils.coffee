@@ -260,7 +260,7 @@ class Utils
     @makeValue(keys, values)
 
   serialize_SignatureField: (element, value) ->
-    makeValue([element.data_name], [value.signature_id])
+    @makeValue([element.data_name], [value.signature_id])
 
   serialize_Choice: (element, value) ->
     choices = []

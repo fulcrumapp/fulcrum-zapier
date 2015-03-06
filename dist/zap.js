@@ -308,7 +308,7 @@ Utils = (function() {
   };
 
   Utils.prototype.serialize_SignatureField = function(element, value) {
-    return makeValue([element.data_name], [value.signature_id]);
+    return this.makeValue([element.data_name], [value.signature_id]);
   };
 
   Utils.prototype.serialize_Choice = function(element, value) {
