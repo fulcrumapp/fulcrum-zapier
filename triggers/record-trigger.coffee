@@ -29,4 +29,4 @@ module.exports = class RecordTrigger extends Trigger
     @result(@output)
 
   result: ->
-    utils.makeRecord(@form, @elements, @data, @output)
+    utils.makeRecord(@form, @elements, @data, @token, @output)

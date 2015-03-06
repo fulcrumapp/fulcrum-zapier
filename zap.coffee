@@ -12,7 +12,7 @@ processPostPollBundle = (bundle) ->
 
   elements = utils.flattenElements(form.elements)
 
-  utils.makeRecords(form, elements, results)
+  utils.makeRecords(form, elements, results, bundle.auth_fields.api_key)
 
 scope.Zap =
   record_changed_catch_hook: (bundle) ->
@@ -51,6 +51,7 @@ scope.Zap =
   record_status_changed_post_poll: processPostPollBundle
 
   app_post_poll: (bundle) ->
-    JSON.parse(bundle.response.content).forms
+    forms = JSON.parse(bundle.response.content).forms
+    _.sortBy forms, 'name'
 
 module.exports = scope.Zap

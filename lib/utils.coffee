@@ -63,7 +63,9 @@ class Utils
     @request(url, token)
 
   fetchForm: (formID, token) ->
-    @fetchResource('forms', formID, token).form
+    form = @fetchResource('forms', formID, token).form
+    @fetchFormDependencies(form, token)
+    form
 
   fetchPreviousRecordVersion: (record, token) ->
     @fetchRecordHistoryVersion(record.id, record.version - 1, token)
@@ -80,6 +82,12 @@ class Utils
 
     @memberships = @request(url, token).memberships
 
+  fetchFormDependencies: (form, token) ->
+    hasChoiceList = _.find @flattenElements(form.elements), (element) ->
+      element.type is 'ChoiceField' and element.choice_list_id?
+
+    @fetchChoiceLists(token) if hasChoiceList
+
   fetchChoiceLists: (token) ->
     return @choiceLists if @choiceLists
 
@@ -90,7 +98,7 @@ class Utils
     @choiceListsMap = {}
 
     _.each @choiceLists, (list) =>
-      @choiceListMap[list.id] = list
+      @choiceListsMap[list.id] = list
 
     @choiceLists
 
@@ -105,8 +113,7 @@ class Utils
 
   choiceLabel: (element, value) ->
     choices = if element.choice_list_id
-      @fetchChoiceLists()
-      @choiceListsMap[element.choice_list_id].choices
+      @choiceListsMap[element.choice_list_id]?.choices or []
     else
       element.choices
 
@@ -142,11 +149,11 @@ class Utils
 
     output
 
-  makeRecords: (form, elements, records) ->
+  makeRecords: (form, elements, records, token) ->
     _.map records, (record) =>
-      @makeRecord(form, elements, record, event_type: 'Create')
+      @makeRecord(form, elements, record, token, event_type: 'Create')
 
-  makeRecord: (form, elements, data, output) ->
+  makeRecord: (form, elements, data, token, output) ->
     output ||= {}
 
     output.id = data.id
@@ -160,12 +167,26 @@ class Utils
     output.created_by = data.created_by
     output.updated_by = data.updated_by
     output.assigned_to = data.assigned_to
-    output.assigned_to_email = data.assigned_to_email if data.assigned_to_email
     output.latitude = data.latitude
     output.longitude = data.longitude
     output.altitude = data.altitude
     output.accuracy = data.horizontal_accuracy
     output.version = data.version
+
+    if data.assigned_to_id
+      output.assigned_to_email = @fetchUserEmail(data.assigned_to_id, token)
+    else
+      output.assigned_to_email = null
+
+    if data.created_by_id
+      output.created_by_email = @fetchUserEmail(data.created_by_id, token)
+    else
+      output.created_by_email = null
+
+    if data.updated_by_id
+      output.updated_by_email = @fetchUserEmail(data.updated_by_id, token)
+    else
+      output.updated_by_email = null
 
     _.each elements, (element) =>
       values = @makeValues(element, data.form_values[element.key])

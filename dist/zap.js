@@ -84,7 +84,10 @@ Utils = (function() {
   };
 
   Utils.prototype.fetchForm = function(formID, token) {
-    return this.fetchResource('forms', formID, token).form;
+    var form;
+    form = this.fetchResource('forms', formID, token).form;
+    this.fetchFormDependencies(form, token);
+    return form;
   };
 
   Utils.prototype.fetchPreviousRecordVersion = function(record, token) {
@@ -108,6 +111,16 @@ Utils = (function() {
     return this.memberships = this.request(url, token).memberships;
   };
 
+  Utils.prototype.fetchFormDependencies = function(form, token) {
+    var hasChoiceList;
+    hasChoiceList = _.find(this.flattenElements(form.elements), function(element) {
+      return element.type === 'ChoiceField' && (element.choice_list_id != null);
+    });
+    if (hasChoiceList) {
+      return this.fetchChoiceLists(token);
+    }
+  };
+
   Utils.prototype.fetchChoiceLists = function(token) {
     var url;
     if (this.choiceLists) {
@@ -118,7 +131,7 @@ Utils = (function() {
     this.choiceListsMap = {};
     _.each(this.choiceLists, (function(_this) {
       return function(list) {
-        return _this.choiceListMap[list.id] = list;
+        return _this.choiceListsMap[list.id] = list;
       };
     })(this));
     return this.choiceLists;
@@ -141,8 +154,8 @@ Utils = (function() {
   };
 
   Utils.prototype.choiceLabel = function(element, value) {
-    var choices, labels, valueLabels;
-    choices = element.choice_list_id ? (this.fetchChoiceLists(), this.choiceListsMap[element.choice_list_id].choices) : element.choices;
+    var choices, labels, valueLabels, _ref;
+    choices = element.choice_list_id ? ((_ref = this.choiceListsMap[element.choice_list_id]) != null ? _ref.choices : void 0) || [] : element.choices;
     labels = [];
     if (value.choice_values) {
       valueLabels = _.map(value.choice_values, function(item) {
@@ -183,17 +196,17 @@ Utils = (function() {
     return output;
   };
 
-  Utils.prototype.makeRecords = function(form, elements, records) {
+  Utils.prototype.makeRecords = function(form, elements, records, token) {
     return _.map(records, (function(_this) {
       return function(record) {
-        return _this.makeRecord(form, elements, record, {
+        return _this.makeRecord(form, elements, record, token, {
           event_type: 'Create'
         });
       };
     })(this));
   };
 
-  Utils.prototype.makeRecord = function(form, elements, data, output) {
+  Utils.prototype.makeRecord = function(form, elements, data, token, output) {
     output || (output = {});
     output.id = data.id;
     output.form_id = data.form_id;
@@ -206,14 +219,26 @@ Utils = (function() {
     output.created_by = data.created_by;
     output.updated_by = data.updated_by;
     output.assigned_to = data.assigned_to;
-    if (data.assigned_to_email) {
-      output.assigned_to_email = data.assigned_to_email;
-    }
     output.latitude = data.latitude;
     output.longitude = data.longitude;
     output.altitude = data.altitude;
     output.accuracy = data.horizontal_accuracy;
     output.version = data.version;
+    if (data.assigned_to_id) {
+      output.assigned_to_email = this.fetchUserEmail(data.assigned_to_id, token);
+    } else {
+      output.assigned_to_email = null;
+    }
+    if (data.created_by_id) {
+      output.created_by_email = this.fetchUserEmail(data.created_by_id, token);
+    } else {
+      output.created_by_email = null;
+    }
+    if (data.updated_by_id) {
+      output.updated_by_email = this.fetchUserEmail(data.updated_by_id, token);
+    } else {
+      output.updated_by_email = null;
+    }
     _.each(elements, (function(_this) {
       return function(element) {
         var key, values, _results;
@@ -1116,7 +1141,7 @@ module.exports = RecordTrigger = (function(_super) {
   };
 
   RecordTrigger.prototype.result = function() {
-    return utils.makeRecord(this.form, this.elements, this.data, this.output);
+    return utils.makeRecord(this.form, this.elements, this.data, this.token, this.output);
   };
 
   return RecordTrigger;
@@ -1202,7 +1227,7 @@ processPostPollBundle = function(bundle) {
   }
   form = utils.fetchForm(results[0].form_id, bundle.auth_fields.api_key);
   elements = utils.flattenElements(form.elements);
-  return utils.makeRecords(form, elements, results);
+  return utils.makeRecords(form, elements, results, bundle.auth_fields.api_key);
 };
 
 scope.Zap = {
@@ -1235,7 +1260,9 @@ scope.Zap = {
   record_project_changed_post_poll: processPostPollBundle,
   record_status_changed_post_poll: processPostPollBundle,
   app_post_poll: function(bundle) {
-    return JSON.parse(bundle.response.content).forms;
+    var forms;
+    forms = JSON.parse(bundle.response.content).forms;
+    return _.sortBy(forms, 'name');
   }
 };
 
