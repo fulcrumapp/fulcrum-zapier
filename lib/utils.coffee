@@ -2,8 +2,6 @@ trim = (value) ->
   value.replace(/^\s+|\s+$/gm,'')
 
 class Utils
-  TEST: process and process.env and process.env.test is 'test'
-
   API: 'https://api.fulcrumapp.com/api/v2'
 
   flattenElements: (elements) ->
@@ -26,16 +24,8 @@ class Utils
       auth: null
       headers: { 'X-ApiToken': token }
 
-    response = null
-    data = null
-
-    if @TEST
-      request = require('sync-request')
-      response = request(params.method, params.url, headers: params.headers)
-      data = response.body
-    else
-      response = z.request(params)
-      data = response.content
+    response = z.request(params)
+    data = response.content
 
     JSON.parse(data)
 
