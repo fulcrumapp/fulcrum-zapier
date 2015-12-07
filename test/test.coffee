@@ -8,7 +8,7 @@ process.env.test = 'test'
 
 fs = require 'fs'
 path = require 'path'
-zap = require '../zap'
+zap = global.Zap = require '../zap'
 utils = require '../lib/utils'
 
 formID = 'e5602f5a-9045-4621-b438-164d48c5dc0e'

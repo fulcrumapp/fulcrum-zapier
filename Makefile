@@ -4,7 +4,7 @@ TESTS     ?= test/*.coffee
 all: build
 
 build:
-	browserify -t coffeeify --extension=".coffee" zap.coffee > dist/zap.js
+	coffee -o dist --bare -c zap.coffee
 
 test:
 	./node_modules/mocha/bin/mocha \
