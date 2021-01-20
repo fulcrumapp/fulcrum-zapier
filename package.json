@@ -1,11 +1,9 @@
 {
-  "name": "y",
-  "version": "0.0.1",
+  "name": "fulcrum-zapier",
+  "version": "2.0.1",
   "description": "Fulcrum Zapier Integration",
-  "main": "zap.js",
-  "scripts": {
-    "test": "make test"
-  },
+  "main": "index.js",
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "http://github.com/fulcrumapp/fulcrum-zapier"
@@ -20,11 +18,11 @@
   },
   "homepage": "https://github.com/fulcrumapp/fulcrum-zapier",
   "devDependencies": {
-    "coffeeify": "^1.2.0",
-    "httpsync": "0.0.8",
-    "jquery": "^2.1.3",
-    "mocha": "^2.1.0",
-    "should": "^4.4.2",
-    "underscore": "^1.7.0"
+    "mocha": "^8.2.1",
+    "should": "^13.2.3"
+  },
+  "dependencies": {
+    "lodash": "^4.17.20",
+    "zapier-platform-core": "10.1.2"
   }
 }
