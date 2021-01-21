@@ -1,10 +1,8 @@
-const _ = require('lodash');
-
 const performList = (z, bundle) => {
   return z.request({
     url: 'https://api.fulcrumapp.com/api/v2/forms.json'
   }).then(response => {
-    return _.map(response.data.forms, form => {
+    return (response.data.forms || []).map(form => {
       return {
         id: form.id,
         name: form.name

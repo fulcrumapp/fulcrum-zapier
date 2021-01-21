@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 const authentication = require('./authentication');
 const recordAssignedTrigger = require('./triggers/record_assigned.js');
 const recordCreatedTrigger = require('./triggers/record_created.js');
